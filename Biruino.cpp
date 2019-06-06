@@ -4,31 +4,28 @@
 
 #include "Biruino.h"
 
+Biruino BiruinoHandler;
+
 using namespace std;
 
-Biruino::Biruino(int pin, long defaultBlinkTimeout) {
-  pinMode(pin, OUTPUT);
-  _timer = new Timer();
+Biruino::Biruino() {}
+
+void Biruino::init(int pin) {
   _pin = pin;
-  _defaultBlinkTimeout = defaultBlinkTimeout;
-  _ledState = 0;
+  pinMode(_pin, OUTPUT);
+  Timer1.initialize(100000);
 }
 
-void Biruino::start() {
-  Serial.println("Biruino::start()");
-  digitalWrite(_pin, HIGH);
-  delay(1000);
-  digitalWrite(_pin, LOW);
-  delay(1000);
-  digitalWrite(_pin, HIGH);
-  delay(1000);
+void Biruino::staticCallback() {
+  //BiruinoHandler.callback();
+  if (BiruinoHandler._ledState == 0) {
+    digitalWrite(BiruinoHandler._pin, HIGH);
+    BiruinoHandler._ledState = 1;
+  } else {
+    digitalWrite(BiruinoHandler._pin, LOW);
+    BiruinoHandler._ledState = 0;
+  }
 
-
-  _event = _timer->every(_defaultBlinkTimeout, staticCallback, this);
-}
-
-void Biruino::staticCallback(void *context) {
-  ((Biruino *)context)->callback();
 }
 
 void Biruino::callback() {
@@ -39,19 +36,4 @@ void Biruino::callback() {
     digitalWrite(_pin, LOW);
     _ledState = 0;
   }
-}
-
-
-void Biruino::dot() {
-  digitalWrite(_pin, HIGH);
-  delay(250);
-  digitalWrite(_pin, LOW);
-  delay(250);  
-}
-
-void Biruino::dash() {
-  digitalWrite(_pin, HIGH);
-  delay(1000);
-  digitalWrite(_pin, LOW);
-  delay(250);
 }

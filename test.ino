@@ -6,13 +6,12 @@
 
 #include "Biruino.h"
 
-Biruino biruino(LED_BUILTIN, 1000);
+// Biruino biruino(LED_BUILTIN, 1000);
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
   Serial.println("Starting...");
-  biruino.start();
+  BiruinoHandler.init(LED_BUILTIN);
 }
 
 void loop() {
