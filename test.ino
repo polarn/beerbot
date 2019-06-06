@@ -7,12 +7,15 @@
 #include "Biruino.h"
 
 void setup() {
-  Serial.begin(9600);
-  Serial.println("Starting...");
   BiruinoHandler.init(LED_BUILTIN);
 }
 
 void loop() {
   Serial.println("Loop...");
-  delay(3000);
+  BiruinoHandler.blinkSlow();
+  delay(5000);
+  //BiruinoHandler.blinkNormal();
+  delay(5000);
+  //BiruinoHandler.blinkFast();
+  delay(5000);
 }

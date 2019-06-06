@@ -11,19 +11,62 @@ using namespace std;
 Biruino::Biruino() {}
 
 void Biruino::init(int pin) {
-  _pin = pin;
-  pinMode(_pin, OUTPUT);
+  ledPin = pin;
+  pinMode(ledPin, OUTPUT);
+
+  Serial.begin(115200);
+  while (!Serial);
+  Serial.print("Serial setup done.");
+
   Timer1.attachInterrupt(staticCallback);
   Timer1.initialize(100000);
 }
 
+// Never use Serial inside the callback or any methods we're calling from there
 void Biruino::staticCallback() {
-  if (BiruinoHandler._ledState == 0) {
-    digitalWrite(BiruinoHandler._pin, HIGH);
-    BiruinoHandler._ledState = 1;
+  if (BiruinoHandler.ledFrequencyCounter > BiruinoHandler.ledFrequency) {
+    BiruinoHandler.toggleLed();
+    BiruinoHandler.ledFrequencyCounter = 0;
   } else {
-    digitalWrite(BiruinoHandler._pin, LOW);
-    BiruinoHandler._ledState = 0;
+    BiruinoHandler.ledFrequencyCounter++;
+  }
+}
+
+void Biruino::toggleLed() {
+  if (ledState == 0) {
+    digitalWrite(ledPin, HIGH);
+    ledState = 1;
+  } else {
+    digitalWrite(ledPin, LOW);
+    ledState = 0;
+  }
+}
+
+void Biruino::blinkSlow() {
+  ledFrequency = BIRUINO_BLINK_SLOW_TICKS;
+}
+
+void Biruino::blinkFast() {
+  ledFrequency = BIRUINO_BLINK_FAST_TICKS;
+}
+
+void Biruino::blinkNormal() {
+  ledFrequency = BIRUINO_BLINK_NORMAL_TICKS;
+}
+
+void Biruino::randomSleep() {
+  int randomSleep = random(20);
+  Serial.println();
+  Serial.print("Will sleep for ");
+  Serial.print(randomSleep);
+  Serial.print(" seconds: ");
+
+  blinkSlow();
+  for (int i = 0; i < randomSleep; i++) {
+    Serial.print(".");
+    delay(1000);
   }
 
+  blinkNormal();
+  Serial.println();
 }
