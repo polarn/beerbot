@@ -9,7 +9,7 @@
 class Biruino {
   public:
     Biruino();
-    void Biruino::init(int led);
+    void init(int led);
     static void staticCallback();
     void callback();
   private:
