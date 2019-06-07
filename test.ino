@@ -11,11 +11,13 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Loop...");
+  Serial.println("blinkNormal...");
+  BiruinoHandler.blinkNormal();
+  delay(10000);
+  Serial.println("blinkFast...");
+  BiruinoHandler.blinkFast();
+  delay(10000);
+  Serial.println("blinkSlow...");
   BiruinoHandler.blinkSlow();
-  delay(5000);
-  //BiruinoHandler.blinkNormal();
-  delay(5000);
-  //BiruinoHandler.blinkFast();
-  delay(5000);
+  delay(10000);
 }

@@ -16,10 +16,10 @@ void Biruino::init(int pin) {
 
   Serial.begin(115200);
   while (!Serial);
-  Serial.print("Serial setup done.");
+  Serial.println("Serial setup done.");
 
   Timer1.attachInterrupt(staticCallback);
-  Timer1.initialize(100000);
+  Timer1.initialize(BIRUINO_BLINK_DELAY);
 }
 
 // Never use Serial inside the callback or any methods we're calling from there
