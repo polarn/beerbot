@@ -3,7 +3,9 @@
 */
 
 #include "Biruino.h"
+#include <ESP8266WiFi.h>
 #define PubNub_BASE_CLIENT WiFiClient
+#define PUBNUB_DEBUG true
 #include <PubNub.h>
 
 Biruino BiruinoHandler;
@@ -51,13 +53,28 @@ void Biruino::init(int _pin, char *_name, char *_channelSend, char *_channelPing
   PubNub.begin(BIRUINO_PUBKEY, BIRUINO_SUBKEY);
   PubNub.set_uuid(name);
   Serial.println("PubNub set up");
+  Serial.print("Pubnub publish key: ");
+  Serial.println(BIRUINO_PUBKEY);
+  Serial.print("Pubnub subscribe key: ");
+  Serial.println(BIRUINO_SUBKEY);
 
   sendBoot();
 }
 
+void Biruino::runFromLoop() {
+  if((millis() - lastPing) > BIRUINO_PING_TIMEOUT) {
+    lastPing = millis();
+    blinkNotify(BIRUINO_PING_TICKS);
+    sendPing();
+  }
+}
+
 // Never use Serial inside the callback or any methods we're calling from there
 void Biruino::staticCallback() {
-  if (BiruinoHandler.ledFrequencyCounter > BiruinoHandler.ledFrequency) {
+  if (BiruinoHandler.notificationCountdown > 0) {
+    BiruinoHandler.toggleLed();
+    BiruinoHandler.notificationCountdown--;
+  } else if (BiruinoHandler.ledFrequencyCounter > BiruinoHandler.ledFrequency) {
     BiruinoHandler.toggleLed();
     BiruinoHandler.ledFrequencyCounter = 0;
   } else {
@@ -118,8 +135,17 @@ void Biruino::generateId() {
 
 void Biruino::sendBoot() {
   char message[256];
-  Serial.println("Sending boot");
   sprintf(message, "{\"source\": \"%s\",\"type\": \"boot\",\"uptime\": \"%d\",\"id\": \"%s\"}", name, millis() / 1000, id);
+  Serial.print("Sending boot to channel: ");
+  Serial.print(channelPing);
+  Serial.print(", message: ");
+  Serial.println(message);
+  pubNubPublish(message, channelPing);
+}
+
+void Biruino::sendPing() {
+  char message[256];
+  sprintf(message, "{\"source\": \"%s\",\"type\": \"ping\",\"uptime\": \"%d\",\"id\": \"%s\"}", name, millis() / 1000, id);
   pubNubPublish(message, channelPing);
 }
 
